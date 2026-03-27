@@ -96,8 +96,8 @@ final class ShazamViewModel: NSObject, ObservableObject {
         }
     }
 
-    /// Uses SHSession.matchStreamingBuffer — feeds raw audio directly to ShazamKit
-    /// for continuous matching. No SHSignatureGenerator or SHManagedSession needed.
+    /// Feeds raw microphone audio directly to ShazamKit via matchStreamingBuffer.
+    /// Uses AVAudioEngine's built-in format conversion (mono PCM at native sample rate).
     private func startStreamingMatch() {
         let shSession = SHSession()
         shSession.delegate = self
@@ -109,16 +109,23 @@ final class ShazamViewModel: NSObject, ObservableObject {
             try avSession.setActive(true, options: .notifyOthersOnDeactivation)
 
             let inputNode = audioEngine.inputNode
-            let nativeSampleRate = inputNode.outputFormat(forBus: 0).sampleRate
+            let nativeFormat = inputNode.outputFormat(forBus: 0)
 
-            // Mono PCM Float32 at the device's native sample rate — required by ShazamKit
-            guard nativeSampleRate > 0,
-                  let monoFormat = AVAudioFormat(
-                      standardFormatWithSampleRate: nativeSampleRate,
-                      channels: 1
-                  ) else {
+            guard nativeFormat.sampleRate > 0, nativeFormat.channelCount > 0 else {
                 stopFakeAudioAnimation()
-                recognitionState = .error("Could not configure audio input")
+                recognitionState = .error("No audio input available")
+                return
+            }
+
+            // Mono PCM Float32 at the device's native sample rate.
+            // AVAudioEngine converts automatically when tap format differs from native format.
+            // This is Apple's recommended pattern for ShazamKit.
+            guard let monoFormat = AVAudioFormat(
+                standardFormatWithSampleRate: nativeFormat.sampleRate,
+                channels: 1
+            ) else {
+                stopFakeAudioAnimation()
+                recognitionState = .error("Could not create audio format")
                 return
             }
 
@@ -221,8 +228,15 @@ extension ShazamViewModel: SHSessionDelegate {
         }
     }
 
-    func session(_ session: SHSession, didNotFindMatchFor signature: SHSignature, error: Error?) {
+    func session(_ session: SHSession, didNotFindMatchFor signature: SHSignature, error: (any Error)?) {
         // Streaming sends partial signatures — ignore intermediate "no match" callbacks.
         // The 15s timeout handles the real "no match" case.
+        // Only stop immediately if ShazamKit reports a real error.
+        if let error {
+            DispatchQueue.main.async { [weak self] in
+                self?.stopEverything()
+                self?.recognitionState = .error(error.localizedDescription)
+            }
+        }
     }
 }
