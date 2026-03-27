@@ -1,7 +1,6 @@
 import Foundation
 import ShazamKit
 import AVFoundation
-import Combine
 
 // MARK: - ShazamViewModel
 
@@ -16,39 +15,52 @@ final class ShazamViewModel: NSObject, ObservableObject {
 
     // MARK: - Private
 
-    private let session = SHSession()
+    // iOS 17+: managed session (handles audio capture internally)
+    private var _managedSession: Any?
+
+    // iOS 16 fallback
+    private var legacySession: SHSession?
     private let audioEngine = AVAudioEngine()
     private var signatureGenerator = SHSignatureGenerator()
     private var matchTimer: Timer?
+    private var timeoutTimer: Timer?
+
+    // Simulated audio-level animation (avoids threading issues with real RMS)
+    private var animTimer: Timer?
+    private var animPhase: Double = 0
+
+    private var recognitionTask: Task<Void, Never>?
 
     private let historyKey = "com.ryankaya.sonicsense.history"
     private let maxHistoryItems = 100
-    private let listeningDuration: TimeInterval = 10
 
     // MARK: - Init
 
     override init() {
         super.init()
-        session.delegate = self
         loadHistory()
     }
 
-    // MARK: - Public Interface
+    deinit { stopEverything() }
+
+    // MARK: - Public
 
     func toggleListening() {
         switch recognitionState {
         case .idle, .noMatch, .error:
-            requestPermissionAndStart()
+            startRecognition()
         case .listening:
-            stopListening(transitionTo: .idle)
+            stopEverything()
+            recognitionState = .idle
         default:
             break
         }
     }
 
     func resetState() {
-        stopListening(transitionTo: .idle)
+        stopEverything()
         currentTrack = nil
+        recognitionState = .idle
     }
 
     func deleteHistoryItem(_ track: RecognizedTrack) {
@@ -61,94 +73,166 @@ final class ShazamViewModel: NSObject, ObservableObject {
         saveHistory()
     }
 
-    // MARK: - Permission & Audio Setup
+    // MARK: - Recognition Entry Point
 
-    private func requestPermissionAndStart() {
-        let status = AVAudioSession.sharedInstance().recordPermission
-        switch status {
-        case .granted:
-            startListening()
-        case .undetermined:
-            AVAudioSession.sharedInstance().requestRecordPermission { [weak self] granted in
-                DispatchQueue.main.async {
-                    if granted {
-                        self?.startListening()
-                    } else {
-                        self?.recognitionState = .error(RecognitionError.microphoneAccessDenied.localizedDescription ?? "")
-                    }
-                }
-            }
-        case .denied:
-            recognitionState = .error(RecognitionError.microphoneAccessDenied.localizedDescription ?? "")
-        @unknown default:
-            break
+    private func startRecognition() {
+        recognitionState = .listening
+        startFakeAudioAnimation()
+
+        if #available(iOS 17.0, *) {
+            startManagedSession()
+        } else {
+            startLegacySession()
         }
     }
 
-    private func startListening() {
+    // MARK: - iOS 17+: SHManagedSession
+
+    @available(iOS 17.0, *)
+    private func startManagedSession() {
+        let session = SHManagedSession()
+        _managedSession = session
+
+        recognitionTask = Task { [weak self] in
+            let result = await session.result()
+
+            guard let self, !Task.isCancelled else { return }
+
+            DispatchQueue.main.async {
+                self.stopFakeAudioAnimation()
+                switch result {
+                case .match(let match):
+                    self.handleMatch(match)
+                case .noMatch(_):
+                    self.recognitionState = .noMatch
+                case .error(let error, _):
+                    self.recognitionState = .error(error.localizedDescription)
+                @unknown default:
+                    self.recognitionState = .noMatch
+                }
+            }
+        }
+    }
+
+    // MARK: - iOS 16: SHSession + AVAudioEngine
+
+    private func startLegacySession() {
+        let perm = AVAudioSession.sharedInstance().recordPermission
+        if perm == .undetermined {
+            AVAudioSession.sharedInstance().requestRecordPermission { [weak self] granted in
+                DispatchQueue.main.async {
+                    if granted { self?.performLegacySetup() }
+                    else {
+                        self?.stopFakeAudioAnimation()
+                        self?.recognitionState = .error("Microphone access denied. Enable in Settings.")
+                    }
+                }
+            }
+        } else if perm == .denied {
+            stopFakeAudioAnimation()
+            recognitionState = .error("Microphone access denied. Enable in Settings > SonicSense.")
+        } else {
+            performLegacySetup()
+        }
+    }
+
+    private func performLegacySetup() {
+        legacySession = SHSession()
+        legacySession?.delegate = self
         signatureGenerator = SHSignatureGenerator()
 
         do {
-            let audioSession = AVAudioSession.sharedInstance()
-            try audioSession.setCategory(.record, mode: .measurement, options: .duckOthers)
-            try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
+            let avSession = AVAudioSession.sharedInstance()
+            try avSession.setCategory(.record, mode: .measurement)
+            try avSession.setActive(true, options: .notifyOthersOnDeactivation)
 
             let inputNode = audioEngine.inputNode
-            let recordingFormat = inputNode.outputFormat(forBus: 0)
+            let format = inputNode.outputFormat(forBus: 0)
 
-            inputNode.installTap(onBus: 0, bufferSize: 8192, format: recordingFormat) { [weak self] buffer, audioTime in
-                try? self?.signatureGenerator.append(buffer, at: audioTime)
-                let level = Self.computeRMSLevel(buffer: buffer)
-                DispatchQueue.main.async { self?.audioLevel = level }
+            inputNode.installTap(onBus: 0, bufferSize: 2048, format: format) { [weak self] buffer, time in
+                try? self?.signatureGenerator.append(buffer, at: time)
             }
 
             audioEngine.prepare()
             try audioEngine.start()
 
-            recognitionState = .listening
+            // Match every 4 s with accumulated audio (more audio = better match)
+            matchTimer = Timer.scheduledTimer(withTimeInterval: 4.0, repeats: true) { [weak self] _ in
+                guard let self else { return }
+                let sig = self.signatureGenerator.signature()
+                self.legacySession?.match(sig)
+            }
 
-            matchTimer = Timer.scheduledTimer(withTimeInterval: listeningDuration, repeats: false) { [weak self] _ in
-                self?.performMatch()
+            // Hard timeout at 16 s
+            timeoutTimer = Timer.scheduledTimer(withTimeInterval: 16.0, repeats: false) { [weak self] _ in
+                guard let self, self.recognitionState == .listening else { return }
+                self.stopEverything()
+                self.recognitionState = .noMatch
             }
 
         } catch {
+            stopFakeAudioAnimation()
             recognitionState = .error(error.localizedDescription)
         }
     }
 
-    private func performMatch() {
-        let signature = signatureGenerator.signature()
-        tearDownAudioEngine()
-        recognitionState = .processing
-        session.match(signature: signature)
+    // MARK: - Shared Match Handler
+
+    private func handleMatch(_ match: SHMatch) {
+        guard let item = match.mediaItems.first else {
+            recognitionState = .noMatch
+            return
+        }
+        let track = RecognizedTrack(from: item)
+        currentTrack = track
+        history.insert(track, at: 0)
+        if history.count > maxHistoryItems {
+            history = Array(history.prefix(maxHistoryItems))
+        }
+        saveHistory()
+        recognitionState = .matched
     }
 
-    private func stopListening(transitionTo state: RecognitionState) {
-        matchTimer?.invalidate()
-        matchTimer = nil
-        tearDownAudioEngine()
-        recognitionState = state
-    }
+    // MARK: - Cleanup
 
-    private func tearDownAudioEngine() {
+    private func stopEverything() {
+        // Cancel managed session
+        if #available(iOS 17.0, *) {
+            (_managedSession as? SHManagedSession)?.cancel()
+            _managedSession = nil
+        }
+        recognitionTask?.cancel()
+        recognitionTask = nil
+
+        // Stop legacy engine
+        matchTimer?.invalidate(); matchTimer = nil
+        timeoutTimer?.invalidate(); timeoutTimer = nil
         if audioEngine.isRunning {
             audioEngine.inputNode.removeTap(onBus: 0)
             audioEngine.stop()
         }
-        audioLevel = 0
         try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+        legacySession = nil
+
+        stopFakeAudioAnimation()
     }
 
-    // MARK: - Audio Utilities
+    // MARK: - Fake Audio Level Animation
 
-    private static func computeRMSLevel(buffer: AVAudioPCMBuffer) -> Float {
-        guard let channelData = buffer.floatChannelData?[0] else { return 0 }
-        let frameLength = Int(buffer.frameLength)
-        guard frameLength > 0 else { return 0 }
-        var sum: Float = 0
-        for i in 0..<frameLength { sum += channelData[i] * channelData[i] }
-        let rms = sqrt(sum / Float(frameLength))
-        return min(rms * 20, 1.0)
+    private func startFakeAudioAnimation() {
+        animPhase = 0
+        animTimer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { [weak self] _ in
+            guard let self else { return }
+            self.animPhase += 0.05
+            let v = 0.3 + 0.25 * sin(self.animPhase * 4.0) + 0.15 * sin(self.animPhase * 9.3)
+            self.audioLevel = Float(max(0, min(1, v)))
+        }
+    }
+
+    private func stopFakeAudioAnimation() {
+        animTimer?.invalidate()
+        animTimer = nil
+        audioLevel = 0
     }
 
     // MARK: - Persistence
@@ -166,29 +250,19 @@ final class ShazamViewModel: NSObject, ObservableObject {
     }
 }
 
-// MARK: - SHSessionDelegate
+// MARK: - SHSessionDelegate (iOS 16 fallback only)
 
 extension ShazamViewModel: SHSessionDelegate {
 
     func session(_ session: SHSession, didFind match: SHMatch) {
-        guard let item = match.mediaItems.first else { return }
-        let track = RecognizedTrack(from: item)
-
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
-            self.currentTrack = track
-            self.history.insert(track, at: 0)
-            if self.history.count > self.maxHistoryItems {
-                self.history = Array(self.history.prefix(self.maxHistoryItems))
-            }
-            self.saveHistory()
-            self.recognitionState = .matched
+            self.stopEverything()
+            self.handleMatch(match)
         }
     }
 
     func session(_ session: SHSession, didNotFindMatchFor signature: SHSignature, error: Error?) {
-        DispatchQueue.main.async { [weak self] in
-            self?.recognitionState = .noMatch
-        }
+        // Silence intermediate "no match" callbacks — wait for the timeout
     }
 }
