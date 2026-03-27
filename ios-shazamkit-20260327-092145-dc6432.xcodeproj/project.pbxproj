@@ -7,31 +7,31 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		56A648A3CE24733F717001D1 /* SonicSenseApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D32767651E79AEBF1E15C5 /* SonicSenseApp.swift */; };
 		0B7246E5E686F589DA36E6B0 /* RecognizedTrack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5109D9CE55149FABD5DEEF6A /* RecognizedTrack.swift */; };
-		339616BE9F35F2869453ED99 /* ShazamViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E341271534BAD80FA4D64C53 /* ShazamViewModel.swift */; };
-		7866AC6020D81F7C1145A018 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62CA244F01CB73B7ED8CDAA8 /* ContentView.swift */; };
-		4E547BB51964775588627E30 /* RecognitionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E02DD0DE9A4C4D20271F085 /* RecognitionView.swift */; };
 		17584D5A8486F136266B4ECE /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26B716E59BBD723501B67ADA /* HistoryView.swift */; };
-		3CC9B41CECB420A11CBFEACD /* TrackCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0CD0E2E1C55AD45FA0A2F01 /* TrackCardView.swift */; };
-		8766D58DED7EBFC1215E5389 /* TrackDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25125A999252457A53718CFE /* TrackDetailView.swift */; };
-		6671C9F699BCEE00CA79BA70 /* ShazamKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37192F135FFD7E8D958B509A /* ShazamKit.framework */; };
 		329600BDABC54D6182F33B00 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0D1D273D143F8E103DBF9636 /* Assets.xcassets */; };
+		339616BE9F35F2869453ED99 /* ShazamViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E341271534BAD80FA4D64C53 /* ShazamViewModel.swift */; };
+		3CC9B41CECB420A11CBFEACD /* TrackCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0CD0E2E1C55AD45FA0A2F01 /* TrackCardView.swift */; };
+		4E547BB51964775588627E30 /* RecognitionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E02DD0DE9A4C4D20271F085 /* RecognitionView.swift */; };
+		56A648A3CE24733F717001D1 /* SonicSenseApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D32767651E79AEBF1E15C5 /* SonicSenseApp.swift */; };
+		6671C9F699BCEE00CA79BA70 /* ShazamKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37192F135FFD7E8D958B509A /* ShazamKit.framework */; };
+		7866AC6020D81F7C1145A018 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62CA244F01CB73B7ED8CDAA8 /* ContentView.swift */; };
+		8766D58DED7EBFC1215E5389 /* TrackDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25125A999252457A53718CFE /* TrackDetailView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		B0673DA5819EC95D2E777EA2 /* SonicSense.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SonicSense.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		84D32767651E79AEBF1E15C5 /* SonicSenseApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SonicSenseApp.swift; sourceTree = "<group>"; };
-		5109D9CE55149FABD5DEEF6A /* RecognizedTrack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecognizedTrack.swift; sourceTree = "<group>"; };
-		E341271534BAD80FA4D64C53 /* ShazamViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShazamViewModel.swift; sourceTree = "<group>"; };
-		62CA244F01CB73B7ED8CDAA8 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		2E02DD0DE9A4C4D20271F085 /* RecognitionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecognitionView.swift; sourceTree = "<group>"; };
-		26B716E59BBD723501B67ADA /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
-		C0CD0E2E1C55AD45FA0A2F01 /* TrackCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackCardView.swift; sourceTree = "<group>"; };
-		25125A999252457A53718CFE /* TrackDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackDetailView.swift; sourceTree = "<group>"; };
-		BE7DDE962C86183253260C50 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0D1D273D143F8E103DBF9636 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		25125A999252457A53718CFE /* TrackDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackDetailView.swift; sourceTree = "<group>"; };
+		26B716E59BBD723501B67ADA /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
+		2E02DD0DE9A4C4D20271F085 /* RecognitionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecognitionView.swift; sourceTree = "<group>"; };
 		37192F135FFD7E8D958B509A /* ShazamKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ShazamKit.framework; path = System/Library/Frameworks/ShazamKit.framework; sourceTree = SDKROOT; };
+		5109D9CE55149FABD5DEEF6A /* RecognizedTrack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecognizedTrack.swift; sourceTree = "<group>"; };
+		62CA244F01CB73B7ED8CDAA8 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		84D32767651E79AEBF1E15C5 /* SonicSenseApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SonicSenseApp.swift; sourceTree = "<group>"; };
+		B0673DA5819EC95D2E777EA2 /* SonicSense.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SonicSense.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BE7DDE962C86183253260C50 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C0CD0E2E1C55AD45FA0A2F01 /* TrackCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackCardView.swift; sourceTree = "<group>"; };
+		E341271534BAD80FA4D64C53 /* ShazamViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShazamViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -46,23 +46,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		721AFBEE0EC6B2249D9084F8 = {
-			isa = PBXGroup;
-			children = (
-				A99753AE2C829ADA80A9A3D5 /* SonicSense */,
-				0438EF3E58DA627B716F39B5 /* Frameworks */,
-				CCD4B190D63C1F6304BBCF09 /* Products */,
-			);
-			sourceTree = "<group>";
-		};
-		CCD4B190D63C1F6304BBCF09 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				B0673DA5819EC95D2E777EA2 /* SonicSense.app */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		0438EF3E58DA627B716F39B5 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -71,33 +54,12 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		A99753AE2C829ADA80A9A3D5 /* SonicSense */ = {
-			isa = PBXGroup;
-			children = (
-				11944E3B883A910215BEEC13 /* App */,
-				AC31D1342A56CDD12CB06A37 /* Models */,
-				6017CB910CD2493711281032 /* ViewModels */,
-				61CF18FE51B9CA0C4C4DFD68 /* Views */,
-				0D1D273D143F8E103DBF9636 /* Assets.xcassets */,
-				BE7DDE962C86183253260C50 /* Info.plist */,
-			);
-			path = SonicSense;
-			sourceTree = "<group>";
-		};
 		11944E3B883A910215BEEC13 /* App */ = {
 			isa = PBXGroup;
 			children = (
 				84D32767651E79AEBF1E15C5 /* SonicSenseApp.swift */,
 			);
 			path = App;
-			sourceTree = "<group>";
-		};
-		AC31D1342A56CDD12CB06A37 /* Models */ = {
-			isa = PBXGroup;
-			children = (
-				5109D9CE55149FABD5DEEF6A /* RecognizedTrack.swift */,
-			);
-			path = Models;
 			sourceTree = "<group>";
 		};
 		6017CB910CD2493711281032 /* ViewModels */ = {
@@ -118,6 +80,44 @@
 				25125A999252457A53718CFE /* TrackDetailView.swift */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		721AFBEE0EC6B2249D9084F8 = {
+			isa = PBXGroup;
+			children = (
+				A99753AE2C829ADA80A9A3D5 /* SonicSense */,
+				0438EF3E58DA627B716F39B5 /* Frameworks */,
+				CCD4B190D63C1F6304BBCF09 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A99753AE2C829ADA80A9A3D5 /* SonicSense */ = {
+			isa = PBXGroup;
+			children = (
+				11944E3B883A910215BEEC13 /* App */,
+				AC31D1342A56CDD12CB06A37 /* Models */,
+				6017CB910CD2493711281032 /* ViewModels */,
+				61CF18FE51B9CA0C4C4DFD68 /* Views */,
+				0D1D273D143F8E103DBF9636 /* Assets.xcassets */,
+				BE7DDE962C86183253260C50 /* Info.plist */,
+			);
+			path = SonicSense;
+			sourceTree = "<group>";
+		};
+		AC31D1342A56CDD12CB06A37 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				5109D9CE55149FABD5DEEF6A /* RecognizedTrack.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		CCD4B190D63C1F6304BBCF09 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B0673DA5819EC95D2E777EA2 /* SonicSense.app */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -265,6 +265,31 @@
 			};
 			name = Debug;
 		};
+		2393B601A51FBE0C03980CA1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = SonicSense/SonicSense.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = N3X2H33TR7;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = SonicSense/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ryankaya.SonicSense;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
 		242CE65CA02FECF422D9EB9D /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -325,8 +350,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = SonicSense/SonicSense.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = N3X2H33TR7;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = SonicSense/Info.plist;
@@ -335,36 +362,13 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.ryankaya.SonicSense";
+				PRODUCT_BUNDLE_IDENTIFIER = com.ryankaya.SonicSense;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
-		};
-		2393B601A51FBE0C03980CA1 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = SonicSense/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.ryankaya.SonicSense";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
-			};
-			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
@@ -388,7 +392,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
 	};
 	rootObject = 7631B9E34C4082A64CCCE7A5 /* Project object */;
 }

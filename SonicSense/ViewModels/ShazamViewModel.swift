@@ -76,22 +76,46 @@ final class ShazamViewModel: NSObject, ObservableObject {
     // MARK: - Recognition Entry Point
 
     private func startRecognition() {
-        recognitionState = .listening
-        startFakeAudioAnimation()
+        // Always request mic permission first, then start the appropriate session
+        requestMicPermission { [weak self] granted in
+            guard let self else { return }
+            if granted {
+                self.recognitionState = .listening
+                self.startFakeAudioAnimation()
+                if #available(iOS 17.0, *) {
+                    self.launchManagedSession()
+                } else {
+                    self.performLegacySetup()
+                }
+            } else {
+                self.recognitionState = .error("Microphone access denied. Enable in Settings > Privacy > Microphone.")
+            }
+        }
+    }
 
-        if #available(iOS 17.0, *) {
-            startManagedSession()
-        } else {
-            startLegacySession()
+    private func requestMicPermission(completion: @escaping (Bool) -> Void) {
+        let perm = AVAudioSession.sharedInstance().recordPermission
+        switch perm {
+        case .granted:
+            completion(true)
+        case .undetermined:
+            AVAudioSession.sharedInstance().requestRecordPermission { granted in
+                DispatchQueue.main.async { completion(granted) }
+            }
+        case .denied:
+            completion(false)
+        @unknown default:
+            completion(false)
         }
     }
 
     // MARK: - iOS 17+: SHManagedSession
 
     @available(iOS 17.0, *)
-    private func startManagedSession() {
+    private func launchManagedSession() {
         let session = SHManagedSession()
         _managedSession = session
+        session.prepare()
 
         recognitionTask = Task { [weak self] in
             let result = await session.result()
@@ -115,26 +139,6 @@ final class ShazamViewModel: NSObject, ObservableObject {
     }
 
     // MARK: - iOS 16: SHSession + AVAudioEngine
-
-    private func startLegacySession() {
-        let perm = AVAudioSession.sharedInstance().recordPermission
-        if perm == .undetermined {
-            AVAudioSession.sharedInstance().requestRecordPermission { [weak self] granted in
-                DispatchQueue.main.async {
-                    if granted { self?.performLegacySetup() }
-                    else {
-                        self?.stopFakeAudioAnimation()
-                        self?.recognitionState = .error("Microphone access denied. Enable in Settings.")
-                    }
-                }
-            }
-        } else if perm == .denied {
-            stopFakeAudioAnimation()
-            recognitionState = .error("Microphone access denied. Enable in Settings > SonicSense.")
-        } else {
-            performLegacySetup()
-        }
-    }
 
     private func performLegacySetup() {
         legacySession = SHSession()

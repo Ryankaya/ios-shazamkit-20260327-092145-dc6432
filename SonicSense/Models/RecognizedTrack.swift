@@ -52,7 +52,7 @@ struct RecognizedTrack: Identifiable, Codable, Equatable {
 
     init(from item: SHMediaItem) {
         self.id = UUID()
-        self.shazamID = item.shazamID
+        self.shazamID = item.shazamID ?? ""
         self.title = item.title ?? "Unknown Title"
         self.artist = item.artist ?? "Unknown Artist"
         self.subtitle = item.subtitle
