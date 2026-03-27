@@ -105,13 +105,24 @@ final class ShazamViewModel: NSObject, ObservableObject {
 
         do {
             let avSession = AVAudioSession.sharedInstance()
-            try avSession.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .mixWithOthers])
+            try avSession.setCategory(.record)
             try avSession.setActive(true, options: .notifyOthersOnDeactivation)
 
             let inputNode = audioEngine.inputNode
-            let format = inputNode.outputFormat(forBus: 0)
+            let nativeSampleRate = inputNode.outputFormat(forBus: 0).sampleRate
 
-            inputNode.installTap(onBus: 0, bufferSize: 2048, format: format) { [weak shSession] buffer, time in
+            // Mono PCM Float32 at the device's native sample rate — required by ShazamKit
+            guard nativeSampleRate > 0,
+                  let monoFormat = AVAudioFormat(
+                      standardFormatWithSampleRate: nativeSampleRate,
+                      channels: 1
+                  ) else {
+                stopFakeAudioAnimation()
+                recognitionState = .error("Could not configure audio input")
+                return
+            }
+
+            inputNode.installTap(onBus: 0, bufferSize: 2048, format: monoFormat) { [weak shSession] buffer, time in
                 shSession?.matchStreamingBuffer(buffer, at: time)
             }
 
